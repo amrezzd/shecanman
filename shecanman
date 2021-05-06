@@ -6,11 +6,24 @@
 # If you have found any issue or have some feature request:
 # Please raise them here: https://github.com/amirz98/shecanman/issues
 
-VRESION="0.1.1"
+VRESION="0.1.2"
 
 SHECAN_DNS="# Shecan dns server
 nameserver 178.22.122.100
 nameserver 185.51.200.2"
+
+# check if stdout is a terminal
+if test -t 1; then
+  # see if it supports colors
+  ncolors=$(tput colors)
+
+  if test -n "$ncolors" && test $ncolors -ge 8; then
+    bold="$(tput bold)"
+    normal="$(tput sgr0)"
+    red="$(tput setaf 1)"
+    green="$(tput setaf 2)"
+  fi
+fi
 
 function show_usage() {
   echo -e "
@@ -23,21 +36,21 @@ function show_usage() {
 
 ShecanMan lets you switch on/off Shecan.ir DNS configs temporarily on linux.
 
-Usage: shecanman [command]
+Usage: ${bold}shecanman [${green}command${normal}]
 
 Commands:
-on      \t  Switch on Shecan.ir DNS configs
-off     \t  Switch off Shecan.ir DNS configs; This will restore previous DNS configs
-status  \t  Show current status
-install \t  Install ShecanMan system-wide, so you can call it from everywhere
-uninstall \t  Uninstall ShecanMan, so that shecanman is longer available system-wide
-version \t  Show ShecanMan version
-help    \t  Show this help"
+${bold}${green} on      \t${normal}Switch on Shecan DNS configs; keeps a backup of current configs
+${bold}${green} off     \t${normal}Switch off Shecan DNS; This will restore previous DNS configs
+${bold}${green} status  \t${normal}Show current status; Check whether ShecanMan is on
+${bold}${green} install \t${normal}Install ShecanMan system-wide, so you can call it everywhere
+${bold}${green} uninstall \t${normal}Uninstall ShecanMan, so that it's longer accessible system-wide
+${bold}${green} version \t${normal}Show ShecanMan version
+${bold}${green} help    \t${normal}Show this help"
 }
 
 function exit_if_not_root() {
   if [[ $EUID -ne 0 ]]; then
-    echo "Permission denied. Please run as root."
+    echo "${bold}${red} Permission denied. Please run as root.${normal}"
     exit 1
   fi
 }
@@ -52,31 +65,31 @@ function is_shecan_on() {
 
 function switch_on() {
   if is_shecan_on; then
-    echo "Shecan is already in use."
+    echo "${bold}${green} Shecan is already in use.${normal}"
   else
     exit_if_not_root
     cp /etc/resolv.conf /etc/resolv.conf.backup
     echo "$SHECAN_DNS" >/etc/resolv.conf
-    echo "Shecan DNS switched on."
+    echo "${bold}${green} Shecan DNS switched on.${normal}"
   fi
 }
 
 function switch_off() {
   if ! is_shecan_on; then
-    echo "Shecan is not in use."
+    echo "${bold}${green} Shecan is not in use.${normal}"
   else
     exit_if_not_root
     cp /etc/resolv.conf.backup /etc/resolv.conf
     rm /etc/resolv.conf.backup
-    echo "Shecan DNS switched off."
+    echo "${bold}${green} Shecan DNS switched off.${normal}"
   fi
 }
 
 function show_status() {
   if is_shecan_on; then
-    echo "Shecan is in use."
+    echo "${bold}${green} Shecan is in use.${normal}"
   else
-    echo "Shecan is not in use."
+    echo "${bold}${green} Shecan is not in use.${normal}"
   fi
 }
 
@@ -85,9 +98,9 @@ function install() {
   chmod +x shecanman
   mkdir -p /usr/local/bin
   cp shecanman /usr/local/bin/
-  echo "Congratulations! shecanman now is accessible everywhere."
+  echo "${bold}${green} Congratulations! shecanman now is accessible everywhere.${normal}"
   if ! is_shecan_on; then
-    echo "Use [shecanman on] to switch on Shecan.ir DNS configs."
+    echo "${bold}${green} Use [shecanman on] to switch on Shecan.ir DNS configs.${normal}"
   fi
 }
 
@@ -100,11 +113,11 @@ function uninstall() {
   if [ -f /usr/local/bin/shecanman ]; then
     rm /usr/local/bin/shecanman
   fi
-  echo "shecanman uninstalled successfully."
+  echo "${bold}${green} shecanman uninstalled successfully.${normal}"
 }
 
 function show_version() {
-  echo "ShecanMan v$VRESION"
+  echo "${bold}${green} ShecanMan v$VRESION ${normal}"
 }
 
 function main() {

@@ -2,9 +2,11 @@
 
 A simple lightweight utility script to use [Shecan](https://www.shecan.ir) DNS servers temporarily on Linux.
 
-![screenshot](screenshots/Screenshot-v0.1.1.png)
+![screenshot](screenshots/Screenshot-v0.1.2.png)
 
 ## Download
+
+Download the latest version as below:
 
 ```shell script
 curl -L -O https://github.com/amirz98/shecanman/releases/latest/download/shecanman
@@ -29,11 +31,11 @@ Usage: `shecanman [command]`
 
 Commands:
 
-- `on` - Switch on Shecan.ir DNS configs.
-- `off` - Switch off Shecan.ir DNS. This will restore previous DNS configs.
-- `status` - Show current status.
-- `install` - Install ShecanMan system-wide, so you can use it everywhere.
-- `uninstall` - Uninstall ShecanMan, so that ShecanMan is longer available system-wide.
+- `on` - Switch on Shecan DNS configs; keeps a backup of current configs.
+- `off` - Switch off Shecan DNS; This will restore previous DNS configs.
+- `status` - Show current status; Check whether ShecanMan is on.
+- `install` - Install ShecanMan system-wide, so you can call it everywhere.
+- `uninstall` - Uninstall ShecanMan, so that it's longer accessible system-wide.
 - `version` - Show ShecanMan version.
 - `help` - Show help.
 
