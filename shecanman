@@ -43,7 +43,7 @@ ${bold}${green} on      \t${normal}Switch on Shecan DNS configs; keeps a backup 
 ${bold}${green} off     \t${normal}Switch off Shecan DNS; This will restore previous DNS configs
 ${bold}${green} status  \t${normal}Show current status; Check whether ShecanMan is on
 ${bold}${green} install \t${normal}Install ShecanMan system-wide, so you can call it everywhere
-${bold}${green} uninstall \t${normal}Uninstall ShecanMan, so that it's longer accessible system-wide
+${bold}${green} uninstall \t${normal}Uninstall ShecanMan, so it's no longer accessible system-wide
 ${bold}${green} version \t${normal}Show ShecanMan version
 ${bold}${green} help    \t${normal}Show this help"
 }
