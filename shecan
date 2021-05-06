@@ -32,13 +32,19 @@ function switch_on() {
     echo "Shecan is already in use"
   else
     cp /etc/resolv.conf /etc/resolv.conf.backup
-    echo "$SHECAN_DNS" > /etc/resolv.conf
+    echo "$SHECAN_DNS" >/etc/resolv.conf
+    echo "Shecan DNS switched on."
   fi
 }
 
 function switch_off() {
-  # Todo not implemented
-  exit 1
+  if ! is_shecan_on; then
+    echo "Shecan not in use"
+  else
+    cp /etc/resolv.conf.backup /etc/resolv.conf
+    rm /etc/resolv.conf.backup
+    echo "Shecan DNS switched off."
+  fi
 }
 
 function show_status() {
