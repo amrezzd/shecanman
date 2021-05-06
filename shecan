@@ -1,8 +1,16 @@
 #!/bin/bash
 
 function show_usage() {
-  # Todo not implemneted
-  exit 1
+  echo -e "shecan-switch lets you swtich your DNS temporarily.
+Usage: shecan [command]
+Commands:
+on    \t  Switch on Shecan DNS configs
+  > shecan on
+off   \t  Switch off Shecan DNS configs
+  > shecan off
+help  \t  Show this help
+  > shecan help
+"
 }
 
 function switch_on() {
