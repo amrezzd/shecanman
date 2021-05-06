@@ -15,13 +15,14 @@ function show_usage() {
 
 shecanman lets you swtich your DNS temporarily.
 
-Usage: shecan [command]
+Usage: shecanman [command]
 
 Commands:
 on      \t  Switch on Shecan DNS configs
 off     \t  Switch off Shecan DNS configs
 status  \t  Show Shecan DNS status
 install \t  Install shecanman system-wide
+uninstall \t  Uninstall shecanman
 help    \t  Show this help"
 }
 
