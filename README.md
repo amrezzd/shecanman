@@ -1,6 +1,6 @@
 # ShecanMan
 
-A simple lightweight utility script to use [Shecan](shecan.ir) DNS servers on Linux.
+A simple lightweight utility script to use [Shecan](https://www.shecan.ir) DNS servers on Linux.
 
 
 ## Installation
@@ -28,4 +28,4 @@ Commands:
 
 ## Disclaimer
 
-I have nothing to do with [Shecan](shecan.ir) team!
+I have nothing to do with [Shecan](https://www.shecan.ir) team!
