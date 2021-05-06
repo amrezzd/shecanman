@@ -5,7 +5,7 @@ A simple lightweight utility script to use [Shecan](https://www.shecan.ir) DNS s
 
 ## Installation
 
-Installation is optional, required only when you want to be able to call the script everywhere:
+Installation is optional, required only when you want to be able to call the script from everywhere:
 
 ```shell script
 sudo bash shecanman install
