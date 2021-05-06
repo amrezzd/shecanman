@@ -26,8 +26,11 @@ function switch_off() {
 }
 
 function show_status() {
-  # Todo not implemented
-  exit 1
+  if cmp --silent resolv.conf /etc/resolv.conf; then
+    echo "Shecan is in use."
+  else
+    echo "Shecan is not in use."
+  fi
 }
 
 function main() {
