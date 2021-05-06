@@ -6,7 +6,7 @@
 # If you have found any issue or have some feature request:
 # Please raise them here: https://github.com/amirz98/shecanman/issues
 
-VRESION="0.1.2"
+VRESION="0.2.0"
 
 SHECAN_DNS="# Shecan dns server
 nameserver 178.22.122.100
