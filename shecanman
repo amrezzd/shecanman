@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 SHECAN_DNS="# Shecan dns server
 nameserver 178.22.122.100
 nameserver 185.51.200.2"
@@ -21,7 +20,7 @@ Usage: shecan [command]
 Commands:
 on    \t  Switch on Shecan DNS configs
   > shecan on
-  
+
 off   \t  Switch off Shecan DNS configs
   > shecan off
 
@@ -30,6 +29,13 @@ status   \t  Show Shecan DNS status
 
 help  \t  Show this help
   > shecan help"
+}
+
+function exit_if_not_root() {
+  if [[ $EUID -ne 0 ]]; then
+    echo "Permission denied. Please run as root."
+    exit 1
+  fi
 }
 
 function is_shecan_on() {
@@ -44,6 +50,7 @@ function switch_on() {
   if is_shecan_on; then
     echo "Shecan is already in use"
   else
+    exit_if_not_root
     cp /etc/resolv.conf /etc/resolv.conf.backup
     echo "$SHECAN_DNS" >/etc/resolv.conf
     echo "Shecan DNS switched on."
@@ -54,6 +61,7 @@ function switch_off() {
   if ! is_shecan_on; then
     echo "Shecan not in use"
   else
+    exit_if_not_root
     cp /etc/resolv.conf.backup /etc/resolv.conf
     rm /etc/resolv.conf.backup
     echo "Shecan DNS switched off."
@@ -76,10 +84,5 @@ function main() {
   *) show_usage ;;
   esac
 }
-
-if [[ $EUID -ne 0 ]]; then
-  echo "Permission denied. Please run as root."
-  exit 1
-fi
 
 main "$@"
