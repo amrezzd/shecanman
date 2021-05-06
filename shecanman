@@ -1,5 +1,10 @@
 #!/bin/bash
 
+
+SHECAN_DNS="# Shecan dns server
+nameserver 178.22.122.100
+nameserver 185.51.200.2"
+
 function show_usage() {
   echo -e "
 ╭━━━┳╮╱╱╱╱╱╱╱╱╱╱╱╱╱╭━╮╭━╮
@@ -26,10 +31,6 @@ status   \t  Show Shecan DNS status
 help  \t  Show this help
   > shecan help"
 }
-
-SHECAN_DNS="# Shecan dns server
-nameserver 178.22.122.100
-nameserver 185.51.200.2"
 
 function is_shecan_on() {
   if [[ $(</etc/resolv.conf) != "$SHECAN_DNS" ]]; then
