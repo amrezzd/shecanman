@@ -1,1 +1,31 @@
+#!/bin/bash
 
+function show_usage() {
+  # Todo not implemneted
+  exit 1
+}
+
+function switch_on() {
+  # Todo not implemneted
+  exit 1
+}
+
+function switch_off() {
+  # Todo not implemented
+  exit 1
+}
+
+function main() {
+  case "$1" in
+  "on") switch_on ;;
+  "off") switch_off ;;
+  *) show_usage ;;
+  esac
+}
+
+if [[ $EUID -ne 0 ]]; then
+  echo "Permission denied. Please run as root."
+  exit 1
+fi
+
+main "$@"
