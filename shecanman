@@ -18,17 +18,11 @@ shecanman lets you swtich your DNS temporarily.
 Usage: shecan [command]
 
 Commands:
-on    \t  Switch on Shecan DNS configs
-  > shecan on
-
-off   \t  Switch off Shecan DNS configs
-  > shecan off
-
-status   \t  Show Shecan DNS status
-  > shecan status
-
-help  \t  Show this help
-  > shecan help"
+on      \t  Switch on Shecan DNS configs
+off     \t  Switch off Shecan DNS configs
+status  \t  Show Shecan DNS status
+install \t  Install shecanman system-wide
+help    \t  Show this help"
 }
 
 function exit_if_not_root() {
@@ -76,11 +70,20 @@ function show_status() {
   fi
 }
 
+function install() {
+  exit_if_not_root
+  chmod +x shecanman
+  mkdir -p /usr/local/bin
+  cp shecanman /usr/local/bin/
+  echo "Congratulations! shecanman now is accessible everywhere"
+}
+
 function main() {
   case "$1" in
   "on") switch_on ;;
   "off") switch_off ;;
   "status") show_status ;;
+  "install") install ;;
   *) show_usage ;;
   esac
 }
