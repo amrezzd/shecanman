@@ -19,7 +19,7 @@ SHECAN_DNS="# Shecan dns server
 nameserver 178.22.122.100
 nameserver 185.51.200.2"
 
-function get_status() {
+function is_shecan_on() {
   if [[ $(</etc/resolv.conf) != "$SHECAN_DNS" ]]; then
     return 1
   else
@@ -28,11 +28,11 @@ function get_status() {
 }
 
 function switch_on() {
-  if get_status; then
+  if is_shecan_on; then
     echo "Shecan is already in use"
   else
     cp /etc/resolv.conf /etc/resolv.conf.backup
-    echo "$SHECAN_DNS" >resolv111.conf
+    echo "$SHECAN_DNS" > /etc/resolv.conf
   fi
 }
 
@@ -42,7 +42,7 @@ function switch_off() {
 }
 
 function show_status() {
-  if get_status; then
+  if is_shecan_on; then
     echo "Shecan is in use."
   else
     echo "Shecan is not in use."
