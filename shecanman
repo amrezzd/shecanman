@@ -21,16 +21,16 @@ function show_usage() {
 ┃╰━╯┃┃┃┃┃━┫╰━┫╭╮┃┃┃┃┃┃┃┃┃╭╮┃┃┃┃
 ╰━━━┻╯╰┻━━┻━━┻╯╰┻╯╰┻╯╰╯╰┻╯╰┻╯╰╯
 
-shecanman lets you swtich on/off Shecan.ir DNS configs temporarily.
+shecanman lets you switch on/off Shecan.ir DNS configs temporarily on linux.
 
 Usage: shecanman [command]
 
 Commands:
 on      \t  Switch on Shecan.ir DNS configs
-off     \t  Switch off Shecan.ir DNS configs
-status  \t  Show DNS configs status
-install \t  Install shecanman system-wide
-uninstall \t  Uninstall shecanman
+off     \t  Switch off Shecan.ir DNS configs; This will restore previous DNS configs
+status  \t  Show current status
+install \t  Install shecanman system-wide, so you can call it from everywhere
+uninstall \t  Uninstall shecanman, so that shecanman is longer available system-wide
 version \t  Show shecanman version
 help    \t  Show this help"
 }
