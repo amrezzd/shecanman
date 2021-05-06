@@ -13,17 +13,18 @@ sudo bash shecanman install
 
 ## Usage
 
-ShecanMan lets you swtich your DNS temporarily.
+shecanman lets you switch on/off Shecan.ir DNS configs temporarily on linux.
 
 Usage: `shecanman [command]`
 
 Commands:
 
-- `on` - Switch on Shecan DNS configs.
-- `off` - Switch off Shecan DNS. This will restore previous DNS configs.
+- `on` - Switch on Shecan.ir DNS configs.
+- `off` - Switch off Shecan.ir DNS. This will restore previous DNS configs.
 - `status` - Show current status.
 - `install` - Install ShecanMan system-wide, so you can use it everywhere.
 - `uninstall` - Uninstall ShecanMan, so that shecanman is longer available system-wide.
+- `version` - Show shecanman version.
 - `help` - Show help.
 
 ## Disclaimer
