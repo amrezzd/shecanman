@@ -78,12 +78,21 @@ function install() {
   echo "Congratulations! shecanman now is accessible everywhere"
 }
 
+function uninstall() {
+  exit_if_not_root
+  if [ -f /usr/local/bin/shecanman ]; then
+    rm /usr/local/bin/shecanman
+  fi
+  echo "shecanman uninstalled successfully."
+}
+
 function main() {
   case "$1" in
   "on") switch_on ;;
   "off") switch_off ;;
   "status") show_status ;;
   "install") install ;;
+  "uninstall") uninstall ;;
   *) show_usage ;;
   esac
 }
