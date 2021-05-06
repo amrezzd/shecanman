@@ -15,9 +15,25 @@ help  \t  Show this help
 "
 }
 
+SHECAN_DNS="# Shecan dns server
+nameserver 178.22.122.100
+nameserver 185.51.200.2"
+
+function get_status() {
+  if [[ $(</etc/resolv.conf) != "$SHECAN_DNS" ]]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
 function switch_on() {
-  # Todo not implemneted
-  exit 1
+  if get_status; then
+    echo "Shecan is already in use"
+  else
+    cp /etc/resolv.conf /etc/resolv.conf.backup
+    echo "$SHECAN_DNS" >resolv111.conf
+  fi
 }
 
 function switch_off() {
@@ -26,7 +42,7 @@ function switch_off() {
 }
 
 function show_status() {
-  if cmp --silent resolv.conf /etc/resolv.conf; then
+  if get_status; then
     echo "Shecan is in use."
   else
     echo "Shecan is not in use."
