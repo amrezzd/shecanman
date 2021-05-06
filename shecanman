@@ -21,14 +21,14 @@ function show_usage() {
 ┃╰━╯┃┃┃┃┃━┫╰━┫╭╮┃┃┃┃┃┃┃┃┃╭╮┃┃┃┃
 ╰━━━┻╯╰┻━━┻━━┻╯╰┻╯╰┻╯╰╯╰┻╯╰┻╯╰╯
 
-shecanman lets you swtich your DNS temporarily.
+shecanman lets you swtich on/off Shecan.ir DNS configs temporarily.
 
 Usage: shecanman [command]
 
 Commands:
-on      \t  Switch on Shecan DNS configs
-off     \t  Switch off Shecan DNS configs
-status  \t  Show Shecan DNS status
+on      \t  Switch on Shecan.ir DNS configs
+off     \t  Switch off Shecan.ir DNS configs
+status  \t  Show DNS configs status
 install \t  Install shecanman system-wide
 uninstall \t  Uninstall shecanman
 version \t  Show shecanman version
