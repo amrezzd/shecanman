@@ -6,7 +6,7 @@
 # If you have found any issue or have some feature request:
 # Please raise them here: https://github.com/amirz98/shecanman/issues
 
-VRESION="0.1.0"
+VRESION="0.1.1"
 
 SHECAN_DNS="# Shecan dns server
 nameserver 178.22.122.100
@@ -52,7 +52,7 @@ function is_shecan_on() {
 
 function switch_on() {
   if is_shecan_on; then
-    echo "Shecan is already in use"
+    echo "Shecan is already in use."
   else
     exit_if_not_root
     cp /etc/resolv.conf /etc/resolv.conf.backup
@@ -63,7 +63,7 @@ function switch_on() {
 
 function switch_off() {
   if ! is_shecan_on; then
-    echo "Shecan not in use"
+    echo "Shecan is not in use."
   else
     exit_if_not_root
     cp /etc/resolv.conf.backup /etc/resolv.conf
@@ -85,11 +85,18 @@ function install() {
   chmod +x shecanman
   mkdir -p /usr/local/bin
   cp shecanman /usr/local/bin/
-  echo "Congratulations! shecanman now is accessible everywhere"
+  echo "Congratulations! shecanman now is accessible everywhere."
+  if ! is_shecan_on; then
+    echo "Use [shecanman on] to switch on Shecan.ir DNS configs."
+  fi
 }
 
 function uninstall() {
   exit_if_not_root
+  if is_shecan_on; then
+    switch_off
+  fi
+
   if [ -f /usr/local/bin/shecanman ]; then
     rm /usr/local/bin/shecanman
   fi
