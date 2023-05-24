@@ -14,22 +14,37 @@ SHECAN_DNS="# Shecan dns server
 nameserver 178.22.122.100
 nameserver 185.51.200.2"
 
+SHECAN_DNS_NETWORKMANAGER="# Shecan dns server
+[global-dns-domain-*]
+servers=178.22.122.100,185.51.200.2"
+
 # check if stdout is a terminal
 if test -t 1; then
-  # see if it supports colors
-  ncolors=$(tput colors)
+    # see if it supports colors
+    ncolors=$(tput colors)
 
-  if test -n "$ncolors" && test $ncolors -ge 8; then
-    bold="$(tput bold)"
-    normal="$(tput sgr0)"
-    red="$(tput setaf 1)"
-    green="$(tput setaf 2)"
-    yellow="$(tput setaf 3)"
-  fi
+    if test -n "$ncolors" && test $ncolors -ge 8; then
+        bold="$(tput bold)"
+        normal="$(tput sgr0)"
+        red="$(tput setaf 1)"
+        green="$(tput setaf 2)"
+        yellow="$(tput setaf 3)"
+    fi
+fi
+
+# Check if NetworkManager is running
+if pgrep "NetworkManager" >/dev/null; then
+    echo "using NetworkManager"
+    networkmanager_running=true
+    # store path to dns files since they are used many times
+    dns_file="/etc/NetworkManager/conf.d/dns-servers.conf"
+    dns_file_backup="/etc/NetworkManager/conf.d/dns-servers.conf.backup"
+else
+    networkmanager_running=false
 fi
 
 function show_usage() {
-  echo -e "
+    echo -e "
 ╭━━━┳╮╱╱╱╱╱╱╱╱╱╱╱╱╱╭━╮╭━╮
 ┃╭━╮┃┃╱╱╱╱╱╱╱╱╱╱╱╱╱┃┃╰╯┃┃
 ┃╰━━┫╰━┳━━┳━━┳━━┳━╮┃╭╮╭╮┣━━┳━╮
@@ -52,139 +67,167 @@ ${bold}${green} help    \t${normal}Show this help"
 }
 
 function exit_if_not_root() {
-  if [[ $EUID -ne 0 ]]; then
-    echo "${bold}${red} Permission denied. Please run as root.${normal}"
-    exit 1
-  fi
+    if [[ $EUID -ne 0 ]]; then
+        echo "${bold}${red} Permission denied. Please run as root.${normal}"
+        exit 1
+    fi
 }
 
 function is_shecan_on() {
-  # read dns config file line by line
-  while read -r line; do
-    # ignore the line if does not begin with nameserver
-    [[ ! $line =~ ^nameserver.* ]] && continue
-    for shecan in "${SHEACN_DNS_ARRAY[@]}"; do
-      if [[ "$line" =~ .*"$shecan".* ]]; then
-        # found a valid shecan dns
-        return 0
-      fi
-    done
+    # read dns config file line by line
+    while read -r line; do
+        # ignore the line if does not begin with nameserver
+        [[ ! $line =~ ^nameserver.* ]] && continue
+        for shecan in "${SHEACN_DNS_ARRAY[@]}"; do
+            if [[ "$line" =~ .*"$shecan".* ]]; then
+                # found a valid shecan dns
+                return 0
+            fi
+        done
 
-    # only first valid line matters, so ignore others
-    break
-  done </etc/resolv.conf
-  return 1
+        # only first valid line matters, so ignore others
+        break
+    done </etc/resolv.conf
+    return 1
 }
 
 function switch_on() {
-  if is_shecan_on; then
-    echo "${bold}${green} Shecan is already in use.${normal}"
-  else
+    if is_shecan_on; then
+        echo "${bold}${green} Shecan is already in use.${normal}"
+        return
+    fi
     exit_if_not_root
-    cp /etc/resolv.conf /etc/resolv.conf.backup
-    echo -e "$SHECAN_DNS" >/etc/resolv.conf
+    if $networkmanager_running; then
+        # Check if dns file exists
+        if [[ -f $dns_file ]]; then
+            cp $dns_file $dns_file_backup
+        fi
+        echo -e "$SHECAN_DNS_NETWORKMANAGER" >$dns_file
+        systemctl restart NetworkManager
+    else
+        cp /etc/resolv.conf /etc/resolv.conf.backup
+        echo -e "$SHECAN_DNS" >/etc/resolv.conf
+    fi
     echo "${bold}${green} Shecan DNS switched on.${normal}"
-  fi
 }
 
 function switch_off() {
-  if ! is_shecan_on; then
-    echo "${bold}${green} Shecan is not in use.${normal}"
-  else
+    if ! is_shecan_on; then
+        echo "${bold}${green} Shecan is not in use.${normal}"
+        return
+    fi
     exit_if_not_root
+    if $networkmanager_running; then
+        # restore backup configs if exists
+        if [[ -f $dns_file_backup ]]; then
+            cp $dns_file_backup $dns_file
+            rm $dns_file_backup
+            systemctl restart NetworkManager
+            echo "${bold}${green} Shecan DNS switched off.${normal}"
+        else
+            # Check if dns-servers.conf is using shecan
+            if [[ $(head -n 1 $dns_file) == "# Shecan"* ]]; then
+                rm $dns_file
+                echo "${bold}${green} Shecan DNS switched off.${normal}"
+            else
+                echo "backup file not found you can verify entries in /etc/NetworkManager/conf.d/dns-servers.conf"
+            fi
+        fi
+        systemctl restart NetworkManager
+        return
+    fi
     # restore backup configs if exists
     if [[ -f /etc/resolv.conf.backup ]]; then
-      cp /etc/resolv.conf.backup /etc/resolv.conf
-      rm /etc/resolv.conf.backup
-      echo "${bold}${green} Shecan DNS switched off.${normal}"
-    else
-      # dns config backup file not found; this happens only when the user changes the dns configs manually
-      # restruct a valid dns config based on current dns config file
-      new_config="# Restored by ShecanMan\n"
-      non_shecan_dns_count=0
-      # read dns config file line by line, keep dns servers that are not for Shecan.ir
-      while read -r line; do
+        cp /etc/resolv.conf.backup /etc/resolv.conf
+        rm /etc/resolv.conf.backup
+        echo "${bold}${green} Shecan DNS switched off.${normal}"
+        return
+    fi
+    # dns config backup file not found; this happens only when the user changes the dns configs manually
+    # restruct a valid dns config based on current dns config file
+    new_config="# Restored by ShecanMan\n"
+    non_shecan_dns_count=0
+    # read dns config file line by line, keep dns servers that are not for Shecan.ir
+    while read -r line; do
         # ignore the line if does not begin with nameserver
         [[ ! $line =~ ^nameserver.* ]] && continue
 
         is_shecan_dns=1
         for shecan in "${SHEACN_DNS_ARRAY[@]}"; do
-          if [[ "$line" =~ .*"$shecan".* ]]; then
-            # found a non-shecan dns
-            is_shecan_dns=0
-            break
-          fi
+            if [[ "$line" =~ .*"$shecan".* ]]; then
+                # found a non-shecan dns
+                is_shecan_dns=0
+                break
+            fi
         done
 
         # keep the dns if it's not a shecan dns
         if [[ $is_shecan_dns == 1 ]]; then
-          new_config+="$line\n"
-          non_shecan_dns_count=$((non_shecan_dns_count + 1))
+            new_config+="$line\n"
+            non_shecan_dns_count=$((non_shecan_dns_count + 1))
         fi
-      done </etc/resolv.conf
+    done </etc/resolv.conf
 
-      # if no non-shecan dns found, use Cloudflare dns server as a single dns entry
-      if [[ $non_shecan_dns_count == 0 ]]; then
+    # if no non-shecan dns found, use Cloudflare dns server as a single dns entry
+    if [[ $non_shecan_dns_count == 0 ]]; then
         new_config+="nameserver 1.1.1.1"
-      fi
-
-      # save the configs
-      echo -e $new_config >/etc/resolv.conf
-
-      if [[ $non_shecan_dns_count == 0 ]]; then
-        echo "${bold}${yellow} Backup DNS not found! Notice that your DNS is now set to Cloudflare (1.1.1.1).${normal}"
-      fi
-
-      echo "${bold}${green} Shecan DNS switched off.${normal}"
     fi
-  fi
+
+    # save the configs
+    echo -e $new_config >/etc/resolv.conf
+
+    if [[ $non_shecan_dns_count == 0 ]]; then
+        echo "${bold}${yellow} Backup DNS not found! Notice that your DNS is now set to Cloudflare (1.1.1.1).${normal}"
+    fi
+
+    echo "${bold}${green} Shecan DNS switched off.${normal}"
 }
 
 function show_status() {
-  if is_shecan_on; then
-    echo "${bold}${green} Shecan is in use.${normal}"
-  else
-    echo "${bold}${green} Shecan is not in use.${normal}"
-  fi
+    if is_shecan_on; then
+        echo "${bold}${green} Shecan is in use.${normal}"
+    else
+        echo "${bold}${green} Shecan is not in use.${normal}"
+    fi
 }
 
 function install() {
-  exit_if_not_root
-  chmod +x shecanman
-  mkdir -p /usr/local/bin
-  cp shecanman /usr/local/bin/
-  echo "${bold}${green} Congratulations! shecanman now is accessible everywhere.${normal}"
-  if ! is_shecan_on; then
-    echo "${bold}${green} Use [shecanman on] to switch on Shecan.ir DNS configs.${normal}"
-  fi
+    exit_if_not_root
+    chmod +x shecanman
+    mkdir -p /usr/local/bin
+    cp shecanman /usr/local/bin/
+    echo "${bold}${green} Congratulations! shecanman now is accessible everywhere.${normal}"
+    if ! is_shecan_on; then
+        echo "${bold}${green} Use [shecanman on] to switch on Shecan.ir DNS configs.${normal}"
+    fi
 }
 
 function uninstall() {
-  exit_if_not_root
-  if is_shecan_on; then
-    switch_off
-  fi
+    exit_if_not_root
+    if is_shecan_on; then
+        switch_off
+    fi
 
-  if [ -f /usr/local/bin/shecanman ]; then
-    rm /usr/local/bin/shecanman
-  fi
-  echo "${bold}${green} shecanman uninstalled successfully.${normal}"
+    if [ -f /usr/local/bin/shecanman ]; then
+        rm /usr/local/bin/shecanman
+    fi
+    echo "${bold}${green} shecanman uninstalled successfully.${normal}"
 }
 
 function show_version() {
-  echo "${bold}${green} ShecanMan v$VRESION ${normal}"
+    echo "${bold}${green} ShecanMan v$VRESION ${normal}"
 }
 
 function main() {
-  case "$1" in
-  "on") switch_on ;;
-  "off") switch_off ;;
-  "status") show_status ;;
-  "install") install ;;
-  "uninstall") uninstall ;;
-  "version") show_version ;;
-  *) show_usage ;;
-  esac
+    case "$1" in
+    "on") switch_on ;;
+    "off") switch_off ;;
+    "status") show_status ;;
+    "install") install ;;
+    "uninstall") uninstall ;;
+    "version") show_version ;;
+    *) show_usage ;;
+    esac
 }
 
 main "$@"
